@@ -87,7 +87,8 @@ bool SkyIP::send_data(char *data)
         perror("Send failed : ");
         return false;
     }
-    
+   
+    usleep(130000); 
     return true;
 }
 
@@ -104,10 +105,10 @@ char *SkyIP::receive(int size=8192)
     usleep(10000);
 
     int cnt;
-    int max = 1000;
+    int max = 5000;
     do { 
         cnt = recv(sock , tmp , sizeof(size) , MSG_DONTWAIT);
-        if (cnt > 0) { 
+	if (cnt > 0) { 
                 tmp[cnt] = 0;
                 strcat(buffer, tmp);	
                 if (strstr(buffer, "Error =") != 0) {
@@ -116,7 +117,7 @@ char *SkyIP::receive(int size=8192)
         } 
         usleep(10);
     } while (max--);
-
+    //printf("%s\n", buffer);
     return buffer;
 }
 

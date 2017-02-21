@@ -3,6 +3,7 @@
 #include <stdio.h> 
 #include <stdlib.h>
 #include <unistd.h>
+#include <math.h>
 
 //---------------------------------------------
 #include "sky_ip.h"
@@ -25,8 +26,10 @@ public:
 	void UpdateAltAz(); 
 	     Scope();
 
-	void SendAPCommand(const char *cmd);	
+	void Bump(float dx, float dy);	
 	void Move(float dx, float dy);		//in arcsec
+
+	void APCommand(char *cmd);
 };
 
 //---------------------------------------------------
@@ -36,27 +39,62 @@ public:
 	connection.conn((char*)"localhost", 3040);
 }
 
+
 //---------------------------------------------------
 
-void Scope::SendAPCommand(const char *cmd)
+void Scope::APCommand(char *cmd)
 {
-    char *input = ReadFile("./js/ap_cmd.txt", 100);
-    
+   char *input = ReadFile("./js/ap_cmd.txt", 100);
+
     char tmp[MAX_SCRIPT];
 
-    Replace(input, "%1", ":Ms010#", tmp);
-    
+    Replace(input, "%1", cmd, tmp);
+
     printf("%s\n", tmp);
-    return;
-    connection.send_data(input);
+
+    connection.send_data(tmp);
 
     char *result;
 
     result = connection.receive(8192);
 
-    printf("%s\n", result);
+    //printf("%s\n", result);
     free((char *)input);
     free((char *)result);
+
+}
+
+//---------------------------------------------------
+// move the mount for dx seconds.
+
+void Scope::Bump(float dx, float dy)
+{
+    char cmd[32];
+    
+    dx *= 1000.0;
+    dy *= 1000.0;
+
+    if (fabs(dx) > 999 || fabs(dy) > 999) return;
+
+    if (fabs(dy) > 4) {
+    	if (dy > 0) {
+    		sprintf(cmd, ":Ms%03d#", (int)(dy));
+	}
+	else {
+		sprintf(cmd, ":Mn%03d#", (int)(-dy));	
+	}
+    	APCommand(cmd);
+    }
+
+    if (fabs(dx) > 4) {
+        if (dx > 0) {
+                sprintf(cmd, ":Me%03d#", (int)(dx));
+        }
+        else {
+                sprintf(cmd, ":Mw%03d#", (int)(-dx));
+        }
+        APCommand(cmd);
+    }
 
 }
 
@@ -64,6 +102,7 @@ void Scope::SendAPCommand(const char *cmd)
 
 void Scope::Move(float dx, float dy)
 {
+/*
     char *input = ReadFile("./js/move.txt");
     connection.send_data(input);
 
@@ -74,6 +113,7 @@ void Scope::Move(float dx, float dy)
     //printf("%s\n", result);
     free((char *)input);
     free((char *)result);
+*/
 }
 
 //---------------------------------------------------
@@ -122,7 +162,7 @@ void Scope::UpdateAltAz()
 
     result = connection.receive(8192);
 
-
+    printf("%s\n", result);
     sscanf(result, "%f|%f|", &alt, &az);
 
     free((char *)input);
@@ -157,17 +197,18 @@ int main(int argc , char *argv[])
 
     s.Stop();
 
-    for (int i = 0; i < 200; i++) {
+    //s.Bump(-0.1, 0);
+    for (int i =0 ; i < 10; i++) {
     	s.UpdateRaDec();
-    	s.UpdateAltAz();
- 
     	printf("%f %f\n", s.ra, s.dec); 
-    	printf("%f %f\n", s.alt, s.az); 
-    	if (i % 20 == 10) s.SendAPCommand("bla"); 
-     } 
-     s.Stop();
-     
-     return 0;
+   	//usleep(300000); 
+    	if (i == 5) s.Bump(0.0, -0.5);
+   	if (i == 8) s.Bump(0.0, 0.5); 
+    }
+
+    //s.Stop();
+ 
+    return 0;
 }
 
 
