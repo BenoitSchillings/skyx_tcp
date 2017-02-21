@@ -10,7 +10,8 @@ if (sky6RASCOMTele.IsConnected==0)
 else
 {
         sky6RASCOMTele.DoCommand(0, "");	
-	sky6RASCOMTele.DoCommand(3, ":Ms920#");  
+	//sky6RASCOMTele.DoCommand(3, ":Ms920#");  
+        sky6RASCOMTele.DoCommand(3, "%1");
 	sky6RASCOMTele.DoCommand(2, "");	
 	sky6RASCOMTele.DoCommand(6, "");	
 	Out  = sky6RASCOMTele.DoCommandOutput;

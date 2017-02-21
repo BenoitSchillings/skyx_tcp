@@ -8,6 +8,7 @@
 #include "sky_ip.h"
 #include "util.c"
 
+#define MAX_SCRIPT  2048
 //---------------------------------------------------
 
 class Scope {
@@ -39,7 +40,14 @@ public:
 
 void Scope::SendAPCommand(const char *cmd)
 {
-    char *input = ReadFile("./js/ap_cmd.txt");
+    char *input = ReadFile("./js/ap_cmd.txt", 100);
+    
+    char tmp[MAX_SCRIPT];
+
+    Replace(input, "%1", ":Ms010#", tmp);
+    
+    printf("%s\n", tmp);
+    return;
     connection.send_data(input);
 
     char *result;
