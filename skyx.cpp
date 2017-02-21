@@ -23,7 +23,8 @@ public:
 	void UpdateRaDec();
 	void UpdateAltAz(); 
 	     Scope();
-	
+
+	void SendAPCommand(const char *cmd);	
 	void Move(float dx, float dy);		//in arcsec
 };
 
@@ -34,9 +35,24 @@ public:
 	connection.conn((char*)"localhost", 3040);
 }
 
-
 //---------------------------------------------------
 
+void Scope::SendAPCommand(const char *cmd)
+{
+    char *input = ReadFile("./js/ap_cmd.txt");
+    connection.send_data(input);
+
+    char *result;
+
+    result = connection.receive(8192);
+
+    printf("%s\n", result);
+    free((char *)input);
+    free((char *)result);
+
+}
+
+//---------------------------------------------------
 
 void Scope::Move(float dx, float dy)
 {
@@ -47,7 +63,7 @@ void Scope::Move(float dx, float dy)
 
     result = connection.receive(8192);
 
-    printf("%s\n", result);
+    //printf("%s\n", result);
     free((char *)input);
     free((char *)result);
 }
@@ -64,7 +80,7 @@ void Scope::Stop()
 
     result = connection.receive(8192);
        
-    printf("%s\n", result); 
+    //printf("%s\n", result); 
     free((char *)input);
     free((char *)result);
 }
@@ -81,7 +97,7 @@ void Scope::Start()
 
     result = connection.receive(8192);
        
-    printf("%s\n", result); 
+    //printf("%s\n", result); 
     free((char *)input);
     free((char *)result);
 }
@@ -139,7 +155,7 @@ int main(int argc , char *argv[])
  
     	printf("%f %f\n", s.ra, s.dec); 
     	printf("%f %f\n", s.alt, s.az); 
-    	//if (i % 10 == 0) s.Move(10, 10); 
+    	if (i % 20 == 10) s.SendAPCommand("bla"); 
      } 
      s.Stop();
      
