@@ -19,6 +19,8 @@ public:
 	float	dec;
 	float   alt;
 	float   az;
+        
+        char    cmd_result[8192];
 
 	void Stop();
         void Start();
@@ -30,6 +32,8 @@ public:
 	void Move(float dx, float dy);		//in arcsec
 
 	void APCommand(char *cmd);
+        void APCommandResult(const char *cmd);
+
 };
 
 //---------------------------------------------------
@@ -39,6 +43,31 @@ public:
 	connection.conn((char*)"localhost", 3040);
 }
 
+
+//---------------------------------------------------
+
+void Scope::APCommandResult(const char *cmd)
+{
+   char *input = ReadFile("./js/ap_cmd_result.txt", 100);
+
+    char tmp[MAX_SCRIPT];
+
+    Replace(input, "%1", ":GA#", tmp);
+
+    printf("%s\n", tmp);
+
+    connection.send_data(tmp);
+
+    char *result;
+
+    result = connection.receive(8192);
+    strcpy(cmd_result, result);
+
+    printf("%s\n", result);
+    free((char *)input);
+    free((char *)result);
+
+}
 
 //---------------------------------------------------
 
@@ -195,17 +224,18 @@ int main(int argc , char *argv[])
 {
     Scope s;
 
-    s.Stop();
+    //s.Stop();
 
     //s.Bump(-0.1, 0);
-    for (int i =0 ; i < 10; i++) {
+    for (int i =0 ; i < 1000; i++) {
     	s.UpdateRaDec();
     	printf("%f %f\n", s.ra, s.dec); 
    	//usleep(300000); 
-    	if (i == 5) s.Bump(0.0, -0.5);
-   	if (i == 8) s.Bump(0.0, 0.5); 
+    	if (i%50 == 25) s.Bump(0.0, -0.5);
+   	if (i%50 == 48) s.Bump(0.0, 0.5); 
     }
 
+    //for (int i = 0; i < 10; i++) s.APCommandResult("hello");
     //s.Stop();
  
     return 0;
