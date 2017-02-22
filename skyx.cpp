@@ -7,36 +7,9 @@
 
 //---------------------------------------------
 #include "sky_ip.h"
+#include "skyx.h"
 #include "util.c"
 
-#define MAX_SCRIPT  2048
-//---------------------------------------------------
-
-class Scope {
-	SkyIP	connection;
-public:	
-	float	ra;
-	float	dec;
-	float   alt;
-	float   az;
-        
-        char    cmd_result[8192];
-
-	void Stop();
-        void Start();
-	void UpdateRaDec();
-	void UpdateAltAz(); 
-	     Scope();
-
-	void Bump(float dx, float dy);	
-	void Move(float dx, float dy);		//in arcsec
-
-	void APCommand(char *cmd);
-        void APCommandResult(const char *cmd);
-
-};
-
-//---------------------------------------------------
 
     Scope::Scope()
 {
@@ -220,7 +193,16 @@ void Scope::UpdateRaDec()
 
 //---------------------------------------------------
 
-int main(int argc , char *argv[])
+void Scope::Log()
+{
+     UpdateRaDec();
+     printf("%f %f\n", ra, dec);
+}
+
+
+//---------------------------------------------------
+
+int tmain(int argc , char *argv[])
 {
     Scope s;
 
