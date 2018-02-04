@@ -1,0 +1,13 @@
+/* Java Script */
+
+var Out;
+sky6RASCOMTele.Connect();
+sky6RASCOMTele.DoCommand(0, "");	
+-
+
+sky6RASCOMTele.DoCommand(4, "");
+
+sky6RASCOMTele.DoCommand(5, "");	
+
+sky6RASCOMTele.DoCommand(6, "");	
+Out = sky6RASCOMTele.DoCommandResult;

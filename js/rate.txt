@@ -9,7 +9,7 @@ if (sky6RASCOMTele.IsConnected==0)
 }
 else
 {
-        sky6RASCOMTele.SetTracking(1, 0, 0.0, -0.0);
+        sky6RASCOMTele.SetTracking(1, 0, %1);
         Out  = "ok";
 }
 
